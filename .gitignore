@@ -1,0 +1,108 @@
+# =============================================================================
+# olist-data-ai-platform
+# =============================================================================
+
+# Environment variables / local secrets
+.env
+.env.*
+!.env.example
+.secrets/
+secrets/
+credentials/
+
+# Local runtime state
+.runtime/
+tmp/
+temp/
+cache/
+/data/
+/datasets/
+/downloads/
+/artifacts/
+/models/
+/backups/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/profiles.yml
+
+# Airflow generated state
+airflow/logs/
+airflow/airflow.db
+airflow/airflow.db-shm
+airflow/airflow.db-wal
+airflow/airflow.cfg
+airflow/standalone_admin_password.txt
+
+# MLflow
+mlruns/
+.mlflow/
+
+# DuckDB local databases
+*.duckdb
+*.duckdb.wal
+
+# PostgreSQL dumps / generated database files
+*.sql.gz
+*.dump
+*.backup
+
+# Superset local state
+superset.db
+superset_home/
+
+# Grafana / Prometheus generated state
+prometheus-data/
+grafana-data/
+
+# Logs
+*.log
+logs/
+
+# IDEs / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating systems
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Windows
+*.lnk
+
+# Local overrides
+docker-compose.override.yml
+*.local

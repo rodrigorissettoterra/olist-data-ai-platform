@@ -1,0 +1,15 @@
+# Normalize text files to LF across development environments.
+* text=auto eol=lf
+
+# Windows-native command scripts.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Explicit binary files.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.parquet binary
