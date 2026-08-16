@@ -1,0 +1,28 @@
+name: foundation-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate M0 foundation contract
+        run: python scripts/bootstrap/validate_m0.py
+
+      - name: Compile Python bootstrap scripts
+        run: python -m compileall -q scripts/bootstrap
