@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use or adapt this project, please cite the original repository and author."
+title: "Olist Data & AI Platform"
+authors:
+  - family-names: "Terra"
+    given-names: "Rodrigo"
+repository-code: "https://github.com/rodrigorissettoterra/olist-data-ai-platform"
+license: "Apache-2.0"
+type: software
