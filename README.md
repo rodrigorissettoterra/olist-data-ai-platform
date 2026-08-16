@@ -396,5 +396,5 @@ External datasets remain subject to the licenses and terms of their original sou
 
 Data & AI professional focused on analytics engineering, data platforms, Machine Learning, Generative AI, automation, MLOps, and reliable AI systems.
 
-- GitHub: [@rodrigorissettoterra](https://github.com/rodrigorissettoterra)
+- GitHub: [Rodrigo Terra](https://github.com/rodrigorissettoterra)
 - LinkedIn: [Rodrigo Terra](https://www.linkedin.com/in/rodrigo-rissetto-terra/)
