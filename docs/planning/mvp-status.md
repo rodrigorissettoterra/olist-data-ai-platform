@@ -1,7 +1,9 @@
 # MVP v1.0.1 — Implementation Status
 
-**Status:** Complete  
-**Scope authority:** ADR-0009  
+**Status:** Complete
+
+**Scope authority:** ADR-0009
+
 **Runtime:** Windows-native / local-first
 
 This document is the current implementation-status matrix. Earlier M0–M11 planning documents describe the original target architecture and should be read together with ADR-0009.
