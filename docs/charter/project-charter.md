@@ -1,112 +1,91 @@
 # Project Charter — olist-data-ai-platform
 
-**Status:** Approved v1.0
-**Milestone:** M0 — Foundation
-**Autor:** Rodrigo Terra
+**Status:** Approved vision; executable MVP delivered under ADR-0009
+**Author:** Rodrigo Terra
 
-## Visão
+## Active delivery note
 
-Construir uma plataforma Data & AI end-to-end sobre um cenário realista de
-e-commerce brasileiro, capaz de transformar dados brutos em informação
-confiável, previsões operacionais e suporte inteligente à decisão.
+The original charter defined a broad production-oriented target architecture. During implementation, ADR-0009 formally narrowed the executable portfolio MVP to a Windows-native local-first runtime.
 
-O projeto deve demonstrar Data Engineering, Analytics Engineering, Data
-Quality, BI, Data Science, ML Engineering, MLOps, API/Serving, Agentic AI,
-observabilidade, governança técnica e CI/CD.
+Therefore:
 
-## Problema central
+- the **vision** below remains the long-term architecture direction;
+- the **implemented MVP** is the scope defined by ADR-0009;
+- unimplemented target components are documented as future evolution and are not presented as current runtime capabilities.
 
-Transformar dados brutos de e-commerce em uma plataforma confiável capaz de:
+Current implementation status: `docs/planning/mvp-status.md`.
 
-1. explicar desempenho histórico;
-2. identificar problemas e possíveis causas;
-3. prever riscos futuros;
-4. disponibilizar métricas consistentes;
-5. apoiar decisões por IA;
-6. observar dados, pipelines, modelos e serviços;
-7. incorporar feedback humano.
+## Vision
 
-## Arquitetura aprovada
+Build an end-to-end Data & AI platform over a realistic Brazilian e-commerce scenario, capable of transforming raw data into reliable information, operational predictions and governed analytical decision support.
+
+## Core problem
+
+Transform e-commerce data into a platform capable of:
+
+1. explaining historical performance;
+2. identifying operational patterns;
+3. predicting delivery risk;
+4. exposing consistent metrics;
+5. supporting governed analytical questions;
+6. serving analytics and predictions through explicit interfaces.
+
+## Executable MVP architecture
 
 ```text
-Fontes → Ingestão → Raw/Bronze → Data Quality → Silver
-       → Analytics Engineering → Gold → Metrics Layer
-       → BI / ML / Agent → Serving → Observability → Feedback
+Sources → Raw/Bronze → DuckDB → Silver → Gold → Metrics
+                                  ├─ BI
+                                  ├─ ML / MLflow
+                                  ├─ FastAPI
+                                  └─ Governed Analytics Agent
 ```
 
-## Fontes
-
-### Reais
+## Real sources
 
 - Olist Brazilian E-Commerce Dataset
 - Olist Marketing Funnel
 
-### Sintéticas derivadas
+## BI
 
-Obrigatórias:
-- inventory snapshots;
-- operational events.
-
-Opcionais:
-- campaigns;
-- web events.
-
-Dados sintéticos devem ser determinísticos, reproduzíveis, versionados por
-código e inequivocamente identificados como sintéticos.
-
-## BI obrigatório
+Implemented views:
 
 - Executive Overview
 - Sales & Customers
 - Operations & Logistics
 - Predictive & AI Insights
 
-Dashboard e Agent devem consumir a mesma Metrics Layer.
+## Main ML use case
 
-## ML principal
+`delivery_delay_risk`
 
-`delivery_delay_risk`.
-
-O instante da previsão será formalmente definido antes do treinamento. Nenhuma
-feature poderá utilizar informação indisponível nesse instante.
+The prediction contract is point-in-time aware; delivery outcome fields are not used as model features.
 
 ## Agent
 
-Deve investigar métricas, consultar Gold e modelos, explicar causas, recomendar
-ações e utilizar human-in-the-loop para ações sensíveis.
+The executable MVP uses a deterministic governed analytics agent with read-only data access and explicit analytical intents.
 
-## Restrições obrigatórias
+LLM orchestration, recommendations that trigger actions and human-in-the-loop execution remain future target capabilities.
 
-1. Apenas OSS, gratuito ou free tier permanente suficiente.
-2. Nenhuma função essencial pode depender de trial.
-3. O núcleo deve continuar funcional localmente.
-4. Código, SQL, pipelines, configs, BI, ML, Agent, testes e docs devem ser
-   produzidos de forma reproduzível.
-5. A atuação manual deve ser reduzida ao inevitável.
-6. Priorizar provisioning por código, scripts e imports.
-7. Segurança, manutenção e reprodutibilidade; sem gambiarras.
-8. Dados grandes e secrets não entram no Git.
+## Constraints
 
-## Stack de referência
+1. Core execution remains local-first.
+2. No essential MVP function depends on a paid cloud service or trial.
+3. Large data, generated artifacts and secrets do not enter Git.
+4. Architecture and implementation claims must remain explicit and auditable.
+5. Security, maintenance and reproducibility take priority over unnecessary infrastructure complexity.
 
-Git/GitHub, Docker Compose, Garage, PostgreSQL, DuckDB, dbt Core, Airflow,
-solução OSS de Data Quality, Superset, scikit-learn/XGBoost, MLflow, FastAPI,
-modelos locais/Hugging Face, Prometheus, Grafana OSS, OpenTelemetry e GitHub
-Actions.
+## Target architecture retained for evolution
 
-## Local-first
+The broader reference stack remains:
 
-AWS, GCP, Azure e outros clouds não fazem parte do runtime obrigatório.
-Compatibilidade S3 existe para portabilidade, não como dependência AWS.
+Git/GitHub, Docker Compose, Garage, PostgreSQL, DuckDB, dbt Core, Airflow, a dedicated OSS Data Quality solution, Superset, scikit-learn/XGBoost, MLflow, FastAPI, local/Hugging Face models, Prometheus, Grafana, OpenTelemetry and GitHub Actions.
 
-## Critério de sucesso
+Only the components identified as implemented in `docs/planning/mvp-status.md` are runtime claims of the current MVP.
 
-Ao final, uma cadeia integrada deve levar fontes reais/sintéticas a Raw,
-camadas tratadas, Gold, métricas, BI, ML, Agent, serving, observabilidade,
-feedback e CI/CD, com lineage, testes e documentação.
+## Success criterion
 
-## Princípio orientador
+The executable MVP succeeds when a reproducible chain takes public Olist sources through analytical layers to BI, ML, serving and governed analytics, with automated validation and faithful documentation.
 
-> A plataforma deve parecer um sistema profissional reduzido à escala de um
-> projeto de portfólio, e não uma coleção de ferramentas conectadas apenas
-> para demonstrar tecnologias.
+## Guiding principle
+
+> The platform should look like a professional system reduced to portfolio scale, not a collection of disconnected technology demonstrations.

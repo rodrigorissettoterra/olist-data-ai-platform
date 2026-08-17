@@ -3,199 +3,95 @@
 > **End-to-end, local-first Data & AI portfolio platform built on public Brazilian e-commerce data.**
 
 ![Status](https://img.shields.io/badge/status-MVP%20validated-success)
+![Version](https://img.shields.io/badge/version-1.0.1-blue)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
-![DuckDB](https://img.shields.io/badge/Warehouse-DuckDB-yellow)
+![Warehouse](https://img.shields.io/badge/Warehouse-DuckDB-yellow)
 ![ML](https://img.shields.io/badge/ML-XGBoost-orange)
 ![API](https://img.shields.io/badge/API-FastAPI-009688)
 ![Tests](https://img.shields.io/badge/integration%20tests-12%20passing-success)
 
----
-
 ## Overview
 
-The **Olist Data & AI Platform** demonstrates how Data Engineering, analytical modeling, Business Intelligence, Machine Learning, MLOps, API serving and governed AI tooling can share the same analytical foundation.
+The **Olist Data & AI Platform** is an executable portfolio project that connects Data Engineering, analytical modeling, Business Intelligence, Machine Learning, experiment tracking, API serving and governed analytical tooling over the same data foundation.
 
-The executable MVP runs locally on Windows without requiring a cloud account, Docker or WSL.
+The current MVP runs locally on Windows with Python 3.12 and does **not** require Docker, WSL or a cloud account.
 
-```text
-Olist public datasets
-        |
-        v
-       Raw
-        |
-        v
- Bronze / Parquet
-        |
-        v
-      DuckDB
-        |
-   +----+----+----------------+
-   |         |                |
- Silver    Gold            Metrics
-                              |
-               +--------------+--------------+
-               |              |              |
-          Streamlit BI   ML / MLflow     FastAPI
-                                             |
-                                      Prediction API
+The repository also preserves a broader production-oriented target architecture. Components that belong only to that future architecture are explicitly identified as such.
 
-                     Metrics / Gold
-                           |
-                           v
-                 Governed Analytics Agent
+## Executable architecture
+
+```mermaid
+flowchart LR
+    A[Olist public datasets] --> B[Raw CSV]
+    B --> C[Bronze / Parquet]
+    C --> D[(DuckDB)]
+    D --> E[Silver]
+    E --> F[Gold]
+    F --> G[Metrics Layer]
+
+    G --> H[Streamlit BI]
+    G --> I[XGBoost]
+    I --> J[MLflow]
+    G --> K[FastAPI]
+    I --> K
+    G --> L[Governed Analytics Agent]
+
+    classDef data fill:#eef6ff,stroke:#3b82f6,color:#111827;
+    classDef serve fill:#ecfdf5,stroke:#10b981,color:#111827;
+    classDef ml fill:#fff7ed,stroke:#f59e0b,color:#111827;
+    class A,B,C,D,E,F,G data;
+    class H,K,L serve;
+    class I,J ml;
 ```
 
-The repository also preserves a broader production-oriented target architecture for future evolution.
+The implemented path is:
 
----
+```text
+Sources → Raw → Bronze → Silver → Gold → Metrics
+                                   ├─ Streamlit BI
+                                   ├─ XGBoost / MLflow
+                                   ├─ FastAPI
+                                   └─ Governed Analytics Agent
+```
+
+## Project preview
+
+### Executive dashboard
+
+The Streamlit dashboard exposes executive, sales, customer, operations, logistics and predictive-readiness views over the governed analytical layer.
+
+![Olist Data & AI Platform — Executive Dashboard](docs/assets/dashboard-executive-overview.png)
+
+### Predictive API
+
+FastAPI exposes health, executive KPI, model-metric and order-level delivery-delay prediction endpoints through an OpenAPI/Swagger interface.
+
+![Olist Data & AI Platform — FastAPI Swagger](docs/assets/fastapi-swagger.png)
 
 ## What is implemented
 
-The current MVP includes:
+The executable MVP includes:
 
-- ingestion of 11 source CSV files;
-- ingestion metadata and SHA-256 hashes;
-- Raw and Bronze layers;
-- Snappy-compressed Parquet;
+- controlled ingestion of 11 Olist source CSV files;
+- source metadata and SHA-256 checksums;
+- Bronze materialization in Snappy-compressed Parquet;
 - DuckDB analytical warehouse;
-- Silver normalized entities;
+- normalized Silver entities;
 - Gold facts and dimensions;
 - shared Metrics Layer;
 - Streamlit analytical dashboard;
-- delivery-delay prediction model;
-- temporal Machine Learning evaluation;
-- XGBoost;
-- MLflow experiment tracking;
-- persisted model artifact;
-- FastAPI serving;
-- prediction endpoint for real orders;
-- governed analytical agent;
-- limited conversational context;
-- automated end-to-end integration tests.
+- delivery-delay risk model with XGBoost;
+- temporal 70/15/15 train/validation/test split;
+- validation-only classification-threshold selection;
+- local MLflow tracking with SQLite;
+- persisted model bundle;
+- FastAPI analytical and predictive serving;
+- governed, deterministic analytical agent with read-only access;
+- 12 end-to-end integration tests;
+- Ruff static validation;
+- GitHub Actions static repository validation.
 
-Final validation:
-
-```text
-12 passed
-```
-
----
-
-## Data sources
-
-The project uses two public Olist datasets.
-
-### Olist Brazilian E-Commerce Dataset
-
-The platform ingests:
-
-- customers;
-- geolocation;
-- orders;
-- order items;
-- payments;
-- reviews;
-- products;
-- sellers;
-- product-category translations.
-
-### Olist Marketing Funnel
-
-The platform also ingests:
-
-- marketing qualified leads;
-- closed deals.
-
-Total:
-
-```text
-11 CSV files
-```
-
-External datasets remain subject to their original licenses and terms.
-
----
-
-## Data architecture
-
-### Bronze
-
-Raw CSV data is converted to Parquet and loaded into the `bronze` schema.
-
-The ingestion process records source metadata and SHA-256 hashes.
-
-### Silver
-
-The normalized analytical layer includes:
-
-- customers;
-- orders;
-- order items;
-- order payments;
-- order reviews;
-- products;
-- sellers;
-- geolocation;
-- marketing qualified leads;
-- closed deals.
-
-### Gold
-
-Current Gold assets include:
-
-```text
-gold.dim_customers
-gold.dim_products
-gold.fact_orders
-gold.fact_order_items
-```
-
-### Metrics Layer
-
-Current governed analytical outputs include:
-
-```text
-metrics.executive_kpis
-metrics.monthly_sales
-metrics.category_performance
-metrics.state_performance
-```
-
-BI, API and analytical tools reuse shared metric definitions instead of reimplementing business logic independently.
-
----
-
-## Metric semantics
-
-### GMV
-
-In this project:
-
-```text
-GMV = sum of item prices transacted in the marketplace
-```
-
-GMV is **not equivalent to Olist revenue**.
-
-A category may have higher GMV while having fewer orders. Therefore the platform treats financial volume and order count as separate dimensions.
-
-### Number of orders
-
-Order volume is based on distinct `order_id`.
-
-### Payments
-
-Payment totals are maintained separately from GMV because they represent a different business measure.
-
-### Delivery delay
-
-A delivered order is classified as delayed when:
-
-```text
-actual delivery date > estimated delivery date
-```
-
----
+The current agent is deliberately **not** presented as an LLM-backed generative agent.
 
 ## Current analytical snapshot
 
@@ -211,11 +107,134 @@ actual delivery date > estimated delivery date
 | Delayed deliveries | 8.11% |
 | Average delivery time | 12.5 days |
 
----
+## Data sources
+
+The project uses two public Olist datasets:
+
+### Olist Brazilian E-Commerce Dataset
+
+- customers;
+- geolocation;
+- orders;
+- order items;
+- payments;
+- reviews;
+- products;
+- sellers;
+- product-category translations.
+
+### Olist Marketing Funnel
+
+- marketing qualified leads;
+- closed deals.
+
+Total: **11 CSV files**.
+
+External datasets remain subject to their original licenses and terms.
+
+### Download the public datasets
+
+The repository includes an optional acquisition helper:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\data\download_olist.py
+```
+
+It downloads the two public Kaggle datasets through `kagglehub` and copies the expected CSV files to:
+
+```text
+data/raw/
+```
+
+You may also place the same 11 CSV files there manually.
+
+## Data architecture
+
+### Bronze
+
+Raw CSV files are read without destructive modification, converted to Parquet and loaded into the `bronze` schema.
+
+The ingestion manifest records:
+
+- source file;
+- target table;
+- row count;
+- file size;
+- SHA-256;
+- ingestion timestamp.
+
+### Silver
+
+The normalized analytical layer contains:
+
+```text
+silver.customers
+silver.orders
+silver.order_items
+silver.order_payments
+silver.order_reviews
+silver.products
+silver.sellers
+silver.geolocation_zip
+silver.marketing_qualified_leads
+silver.closed_deals
+```
+
+### Gold
+
+Current Gold assets:
+
+```text
+gold.dim_customers
+gold.dim_products
+gold.fact_orders
+gold.fact_order_items
+```
+
+### Metrics Layer
+
+Current governed analytical outputs:
+
+```text
+metrics.executive_kpis
+metrics.monthly_sales
+metrics.category_performance
+metrics.state_performance
+```
+
+BI, API and analytical tools reuse these shared definitions instead of implementing independent KPI logic.
+
+## Metric semantics
+
+### GMV
+
+```text
+GMV = sum of item prices transacted in the marketplace
+```
+
+GMV is **not equivalent to Olist revenue**.
+
+A category may have higher GMV while having fewer orders, so financial volume and order count are treated as different measures.
+
+### Number of orders
+
+Order volume uses distinct `order_id`.
+
+### Payments
+
+Payment totals are maintained separately from GMV because they represent a different business measure.
+
+### Delivery delay
+
+A delivered order is classified as delayed when:
+
+```text
+actual delivery date > estimated delivery date
+```
 
 ## Business Intelligence
 
-The Streamlit application contains four views:
+The Streamlit application contains four tabs:
 
 1. Executive Overview
 2. Sales & Customers
@@ -228,29 +247,29 @@ Run:
 .\.venv\Scripts\python.exe -m streamlit run .\dashboard\app.py
 ```
 
-Then access:
+Open:
 
 ```text
 http://localhost:8501
 ```
 
----
+The dashboard is currently a local portfolio application; no public hosted URL is claimed.
 
 ## Machine Learning
 
-The predictive use case is:
+The main predictive use case is:
 
 ```text
 delivery_delay_risk
 ```
 
-The model estimates the risk of a delivered order exceeding its estimated delivery date.
+### Prediction contract
 
-### Leakage prevention
+The model estimates the risk that an order will exceed its estimated delivery date.
 
 Only information available before the delivery outcome is used as a feature.
 
-The final split is temporal:
+### Temporal validation
 
 ```text
 70% training
@@ -258,21 +277,21 @@ The final split is temporal:
 15% test
 ```
 
-The decision threshold is selected only with the validation set.
+The decision threshold is selected exclusively on the validation partition. The test partition is not used for threshold selection.
 
 ### Final test performance
 
 | Metric | Result |
 |---|---:|
-| ROC AUC | 0.7259 |
-| PR AUC | 0.1679 |
-| Precision | 0.1470 |
-| Recall | 0.5528 |
-| F1 | 0.2323 |
-| Threshold | 0.42 |
+| ROC AUC | 0.7257 |
+| PR AUC | 0.1627 |
+| Precision | 0.1438 |
+| Recall | 0.5956 |
+| F1 | 0.2316 |
+| Threshold | 0.41 |
 | Test delay rate | 6.61% |
 
-The target is imbalanced. The model is presented as a risk-ranking portfolio use case rather than as a production SLA.
+The target is imbalanced. The model is presented as a portfolio risk-ranking use case, not as a production SLA.
 
 Train:
 
@@ -281,8 +300,6 @@ Train:
 ```
 
 Experiment metadata is tracked locally with MLflow and SQLite.
-
----
 
 ## FastAPI
 
@@ -309,18 +326,17 @@ Available endpoints:
 | `GET /api/v1/model/metrics` | Machine Learning evaluation |
 | `GET /api/v1/predict/{order_id}` | Delivery-delay risk |
 
----
-
 ## Governed Analytics Agent
 
-The MVP includes a deterministic analytical agent built over explicit, approved tools.
+The MVP includes a deterministic analytical agent built on explicit approved tools.
 
-It is intentionally constrained:
+Controls:
 
-- read-only database access;
+- read-only DuckDB access;
 - no arbitrary SQL;
 - no administrative credentials;
-- explicit analytical tools;
+- explicit analytical intents;
+- parameterized order lookup;
 - limited conversational context;
 - no sensitive actions.
 
@@ -340,22 +356,35 @@ Run:
 .\.venv\Scripts\python.exe .\agent\src\olist_agent\main.py
 ```
 
-The current agent is **not presented as an LLM-backed generative agent**.
+The tool layer can later be connected to an LLM without granting unrestricted warehouse access.
 
-Its tool layer can later be connected to an LLM without granting unrestricted database access.
+## Data Quality scope
 
----
+A dedicated OSS Data Quality framework is **not part of the executable MVP**.
+
+Instead, the current MVP enforces core contracts through:
+
+- deterministic transformations;
+- ingestion checksums and row counts;
+- explicit table grains;
+- integration checks for expected schemas;
+- fact-order uniqueness;
+- KPI consistency checks;
+- persisted-model validation;
+- API and agent integration tests.
+
+A dedicated Data Quality platform remains part of the target architecture.
 
 ## Automated validation
 
-The integration suite verifies:
+The local integration suite verifies:
 
 - DuckDB availability;
 - Bronze/Silver/Gold/Metrics schemas;
 - fact-order uniqueness;
 - executive KPI consistency;
 - persisted model artifacts;
-- ML evaluation metrics;
+- ML evaluation metadata;
 - agent intent routing;
 - conversational ranking context;
 - FastAPI health;
@@ -368,7 +397,7 @@ Run:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest `
     .\tests\integration\test_mvp_integration.py `
-    -v
+    -q
 ```
 
 Validated result:
@@ -377,9 +406,23 @@ Validated result:
 12 passed
 ```
 
-The current environment may emit two NumPy/joblib deprecation warnings while loading the persisted model. They do not cause test failures.
+The current local environment may emit two NumPy/joblib deprecation warnings while loading the persisted model. They do not cause test failures.
 
----
+### Static validation
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check `
+    .\agent\src\olist_agent\main.py `
+    .\api\src\olist_api\main.py `
+    .\dashboard\app.py `
+    .\ml\src\olist_ml\train_delay_model.py `
+    .\scripts\data\download_olist.py `
+    .\scripts\data\build_bronze.py `
+    .\scripts\data\build_silver_gold.py `
+    .\tests\integration\test_mvp_integration.py
+```
+
+The GitHub Actions workflow performs repository-level static checks that do not require committing datasets or trained model artifacts.
 
 ## Running locally
 
@@ -389,27 +432,22 @@ The current environment may emit two NumPy/joblib deprecation warnings while loa
 python -m venv .venv
 ```
 
-### 2. Install runtime dependencies
+### 2. Install dependencies
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install .
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r .\requirements-dev.txt
 ```
 
-Development and tests:
+### 3. Acquire source data
+
+Automatic helper:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install ".[dev]"
+.\.venv\Scripts\python.exe .\scripts\data\download_olist.py
 ```
 
-### 3. Source data
-
-Place the source CSV files under:
-
-```text
-data/raw/
-```
-
-Generated data, DuckDB files, model artifacts, MLflow data and the virtual environment are excluded from Git.
+Or place the expected CSV files manually under `data/raw/`.
 
 ### 4. Build Bronze
 
@@ -423,72 +461,101 @@ Generated data, DuckDB files, model artifacts, MLflow data and the virtual envir
 .\.venv\Scripts\python.exe .\scripts\data\build_silver_gold.py
 ```
 
-### 6. Train ML
+### 6. Train the delivery-delay model
 
 ```powershell
 .\.venv\Scripts\python.exe .\ml\src\olist_ml\train_delay_model.py
 ```
 
----
+### 7. Validate the MVP
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest `
+    .\tests\integration\test_mvp_integration.py `
+    -q
+```
+
+Generated data, DuckDB databases, trained model artifacts, MLflow state and the virtual environment are intentionally excluded from Git.
+
+## Repository map
+
+```text
+olist-data-ai-platform/
+├── agent/              Governed analytical agent
+├── api/                FastAPI serving
+├── dashboard/          Streamlit BI application
+├── docs/               Architecture, ADRs, data and planning docs
+├── ml/                 Delivery-delay model training
+├── scripts/data/       Data acquisition and transformations
+├── tests/integration/  End-to-end MVP validation
+├── data_quality/       Target-architecture scaffold + scope notes
+├── airflow/            Target-architecture scaffold
+├── dbt/                Target-architecture scaffold
+├── infrastructure/     Target Docker/Garage/PostgreSQL scaffold
+├── observability/      Target observability scaffold
+└── synthetic_data/     Target synthetic-data scaffold
+```
 
 ## MVP versus target architecture
 
 ### Executable MVP
 
 - Python 3.12;
-- filesystem;
+- local filesystem;
 - Parquet;
 - DuckDB;
 - Streamlit;
-- XGBoost;
-- MLflow;
+- scikit-learn / XGBoost;
+- MLflow with SQLite;
 - FastAPI;
-- governed analytical tools;
+- governed deterministic analytical tools;
 - pytest;
-- Ruff.
+- Ruff;
+- GitHub Actions static checks.
 
-### Target architecture
+### Target architecture retained for future evolution
 
-The repository retains architecture and scaffolding for future evolution with:
-
-- Docker Compose;
+- Docker Compose runtime;
 - Garage S3-compatible object storage;
-- PostgreSQL;
+- PostgreSQL analytical warehouse;
 - dbt Core;
 - Apache Airflow;
+- dedicated OSS Data Quality framework;
 - Apache Superset;
 - Prometheus;
 - Grafana;
 - OpenTelemetry;
-- GitHub Actions;
 - LLM-backed agent orchestration;
-- broader feedback and human-in-the-loop workflows.
+- action workflows and human-in-the-loop;
+- synthetic inventory and operational-event datasets.
 
-These components are not claimed as implemented in the executable MVP.
+These target components are **not claimed as implemented in the executable MVP**.
 
-See:
+The scope decision is documented in:
 
 ```text
 docs/adr/0009-adopt-windows-native-mvp.md
 ```
 
----
+The implementation/deferred-feature matrix is documented in:
+
+```text
+docs/planning/mvp-status.md
+```
 
 ## Engineering principles
 
-- local-first;
+- local-first execution;
 - Raw → Bronze → Silver → Gold separation;
 - shared metric definitions;
 - point-in-time correctness;
 - leakage prevention;
-- governed AI access;
-- read-only analytical tools;
-- explicit separation between implemented and planned architecture;
+- governed analytical access;
+- read-only agent tools;
+- explicit separation between implemented and target architecture;
 - generated data outside Git;
 - automated integration validation;
-- architectural decisions recorded with ADRs.
-
----
+- architecture decisions recorded through ADRs.
 
 ## License
 
@@ -497,8 +564,6 @@ Original source code and configuration are licensed under the **Apache License 2
 Original documentation and diagrams are licensed under **Creative Commons Attribution 4.0 (CC BY 4.0)** with attribution to Rodrigo Terra.
 
 External datasets remain subject to their original licenses and terms.
-
----
 
 ## Author
 

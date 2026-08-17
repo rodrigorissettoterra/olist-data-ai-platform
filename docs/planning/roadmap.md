@@ -1,20 +1,44 @@
 # Roadmap
 
-**Status:** Approved v1.0
+**Current status:** MVP v1.0.1 complete.
 
-1. M0 Foundation
-2. M1 Data Sources & Ingestion
-3. M2 Data Lake
-4. M3 Data Quality & Engineering
-5. M4 Analytics Engineering
-6. M5 Business Intelligence
-7. M6 Data Science
-8. M7 MLOps
-9. M8 Agentic AI
-10. M9 Observability
-11. M10 Feedback & Human-in-the-loop
-12. M11 CI/CD & Release
+## Executable MVP — complete
 
-M5 e M6 podem evoluir parcialmente em paralelo após M4. M8 depende de interfaces
-governadas e prediction lifecycle real. M1 só começa após o gate operacional de
-M0.
+```text
+Public Olist data
+    ↓
+Raw / Bronze Parquet
+    ↓
+DuckDB
+    ↓
+Silver
+    ↓
+Gold
+    ↓
+Metrics Layer
+    ├─ Streamlit BI
+    ├─ XGBoost / MLflow
+    ├─ FastAPI
+    └─ Governed Analytics Agent
+    ↓
+Integration validation
+```
+
+## Future target architecture
+
+Possible future evolution includes:
+
+1. dedicated Data Quality framework;
+2. dbt Core;
+3. Airflow orchestration;
+4. Garage / PostgreSQL runtime;
+5. Superset;
+6. Prometheus / Grafana / OpenTelemetry;
+7. LLM-backed agent orchestration;
+8. HITL/action workflows;
+9. synthetic operational datasets;
+10. broader CI/CD and release automation.
+
+These items are not required for the completed ADR-0009 portfolio MVP.
+
+See `docs/planning/mvp-status.md` for the authoritative implementation matrix.

@@ -1,11 +1,17 @@
 # Catálogo das fontes
 
-**Status:** Approved v1.0
+**Status:** MVP real sources implemented; synthetic sources deferred by ADR-0009
+
+> **Implementation note:** this document was originally created for the broader
+> production-oriented target architecture. The executable Windows-native MVP
+> adopted in `docs/adr/0009-adopt-windows-native-mvp.md` uses only the two real
+> public Olist sources described below. Synthetic datasets remain documented as
+> a future evolution path and are not current runtime requirements.
 
 ## Classificação
 
 - `REAL_EXTERNAL`
-- `SYNTHETIC_DERIVED`
+- `SYNTHETIC_DERIVED` — target architecture / deferred
 - `PLATFORM_GENERATED`
 
 ## SRC-001 — Olist Brazilian E-Commerce Dataset
@@ -38,8 +44,8 @@ Campos:
 `order_approved_at`, `order_delivered_carrier_date`,
 `order_delivered_customer_date`, `order_estimated_delivery_date`.
 
-`order_delivered_customer_date` é posterior ao resultado e não pode ser
-automaticamente utilizado como feature de previsão.
+`order_delivered_customer_date` é posterior ao resultado e não é utilizado como
+feature de previsão do risco de atraso.
 
 ### Order Items
 
@@ -66,7 +72,7 @@ Campos:
 `review_comment_message`, `review_creation_date`,
 `review_answer_timestamp`.
 
-Não presumir unicidade de `order_id`; a cardinalidade será medida.
+A modelagem não presume uma única review por `order_id` antes da consolidação.
 
 ### Products
 
@@ -90,8 +96,8 @@ Campos:
 `geolocation_zip_code_prefix`, `geolocation_lat`, `geolocation_lng`,
 `geolocation_city`, `geolocation_state`.
 
-Não presumir uma linha por prefixo de CEP; agregação/consolidação será definida
-após profiling.
+A fonte possui múltiplos registros por prefixo de CEP. O MVP consolida essa
+informação na camada Silver em `silver.geolocation_zip`.
 
 ### Product Category Translation
 
@@ -124,33 +130,51 @@ Ponte:
 closed_deals.seller_id → sellers.seller_id
 ```
 
-O funil não deve ser presumido como cobrindo todo o período do e-commerce.
+O funil não é presumido como cobrindo todo o período do e-commerce.
 
-## Fontes sintéticas
+## Aquisição no MVP
+
+O helper opcional `scripts/data/download_olist.py` baixa as duas fontes públicas
+e disponibiliza os 11 CSVs esperados em `data/raw/`.
+
+O build Bronze registra em `meta.ingestion_manifest`:
+
+- `source_file`;
+- `table_name`;
+- `row_count`;
+- `size_bytes`;
+- `sha256`;
+- `ingested_at`.
+
+A versão exata do dataset no catálogo externo não é persistida pelo MVP atual;
+por isso a documentação não a apresenta como metadado implementado.
+
+## Fontes sintéticas — target architecture / deferred
+
+Os itens abaixo pertencem à arquitetura-alvo original e não fazem parte do
+runtime do MVP executável.
 
 ### SYN-001 — Inventory Snapshots
 
-Obrigatória. Grain conceitual candidato:
+Planejado para evolução futura. Grain conceitual candidato:
 `snapshot_timestamp + seller_id + product_id`.
-
-Atributos somente serão congelados antes da implementação.
 
 ### SYN-002 — Operational Events
 
-Obrigatória quando necessária para representar estados operacionais ausentes da
-fonte real.
+Planejado para evolução futura quando for necessário representar estados
+operacionais ausentes das fontes reais.
 
 ### SYN-003 — Campaigns
 
-Opcional.
+Opcional na arquitetura-alvo.
 
 ### SYN-004 — Web Events
 
-Opcional.
+Opcional na arquitetura-alvo.
 
-## Regra de provenance sintético
+### Provenance de dados sintéticos futuros
 
-Todo dataset sintético deve registrar:
+Caso fontes sintéticas sejam implementadas futuramente, deverão registrar:
 
 - synthetic source ID;
 - generator version;
@@ -159,7 +183,9 @@ Todo dataset sintético deve registrar:
 - input dataset versions;
 - configuration version.
 
-## Cardinalidades a validar
+## Cardinalidades e contratos
+
+Contratos relevantes da fonte incluem:
 
 - `orders.order_id` unique;
 - `customers.customer_id` unique;
@@ -172,16 +198,12 @@ Todo dataset sintético deve registrar:
 - `closed_deals.mql_id → mql.mql_id`;
 - `closed_deals.seller_id → sellers.seller_id`.
 
-Esses itens são contratos esperados a testar, não resultados já medidos.
+O MVP valida diretamente os contratos necessários ao fluxo executável por meio
+das transformações determinísticas e da suíte de integração. Contratos mais
+amplos de profiling permanecem possíveis extensões de Data Quality.
 
 ## Fan-out
 
-Nunca calcular KPI monetário em join multi-grão sem contrato explícito. Orders,
-items, payments e reviews podem multiplicar linhas quando combinados.
-
-## Versão de fontes
-
-Cada arquivo adquirido deve registrar:
-
-`source_id`, `source_version`, `file_name`, `SHA-256`, `file_size`,
-`acquired_at`.
+KPIs monetários não são calculados diretamente sobre joins multi-grão sem
+agregação explícita. Orders, items, payments e reviews podem multiplicar linhas
+quando combinados.

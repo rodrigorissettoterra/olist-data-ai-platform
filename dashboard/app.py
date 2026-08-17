@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import duckdb
@@ -8,6 +9,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "data" / "warehouse" / "olist.duckdb"
+MODEL_METRICS_PATH = ROOT / "artifacts" / "ml" / "delivery_delay_metrics.json"
 
 
 st.set_page_config(
@@ -28,6 +30,12 @@ def query(sql: str) -> pd.DataFrame:
 
 def brl(value: float) -> str:
     return f"R$ {value:,.2f}"
+
+
+def load_model_metrics() -> dict[str, float] | None:
+    if not MODEL_METRICS_PATH.exists():
+        return None
+    return json.loads(MODEL_METRICS_PATH.read_text(encoding="utf-8"))
 
 
 st.title("Olist Data & AI Platform")
@@ -337,11 +345,27 @@ with ai_tab:
         f"{readiness['delayed_rate']:.2f}%",
     )
 
-    st.info(
-        "This layer is ready for the delivery-delay risk model. "
-        "The model, MLflow tracking and governed AI assistant are "
-        "the next components of the platform."
-    )
+    metrics = load_model_metrics()
+
+    if metrics is None:
+        st.warning(
+            "Model metrics were not found. Run the delivery-delay training "
+            "pipeline to populate predictive metrics."
+        )
+    else:
+        st.subheader("Delivery-delay model")
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        col1.metric("ROC AUC", f"{metrics['roc_auc']:.4f}")
+        col2.metric("PR AUC", f"{metrics['pr_auc']:.4f}")
+        col3.metric("Recall", f"{metrics['recall']:.4f}")
+        col4.metric("Threshold", f"{metrics['threshold']:.2f}")
+
+        st.success(
+            "The delivery-delay model, MLflow tracking, FastAPI prediction "
+            "serving and governed analytics agent are implemented in the MVP."
+        )
 
 
 st.divider()

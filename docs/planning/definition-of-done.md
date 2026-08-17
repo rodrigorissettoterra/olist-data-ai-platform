@@ -1,97 +1,82 @@
 # Definition of Done
 
-**Status:** Approved v1.0
+**Status:** Approved for executable MVP
+**Scope authority:** ADR-0009
 
-## Regra geral
+## General rule
 
-> Done significa implementado, validado, reproduzível, documentado e coerente
-> com a arquitetura.
+> Done means implemented, validated, reproducible, documented and coherent with the active architecture.
 
-Uma tarefa não está concluída apenas porque o código foi escrito ou um container
-subiu.
+A task is not complete merely because code exists.
 
-## DoD de tarefa
+## Executable MVP completion gate
 
-Quando aplicável:
+The ADR-0009 MVP is considered complete when all applicable items below are satisfied:
 
-- escopo implementado sem requisito obrigatório omitido;
-- código/configuração no diretório correto;
-- secrets fora do Git;
-- testes adequados passando;
-- comportamento de erro testado;
-- reexecução/idempotência validada quando contratada;
-- documentação atualizada;
-- sem dependência manual oculta quando provisioning é possível;
-- menor privilégio e exposição mínima;
-- logging apropriado;
-- sem alteração silenciosa de arquitetura.
+1. public source files can be acquired or placed under `data/raw/`;
+2. all 11 expected CSV files are validated before Bronze build;
+3. ingestion metadata includes row count, size and SHA-256;
+4. Bronze Parquet and DuckDB tables build successfully;
+5. Silver, Gold and Metrics layers build successfully;
+6. `gold.fact_orders` preserves one row per order;
+7. BI consumes governed analytical tables;
+8. ML uses a leakage-aware prediction contract;
+9. ML split is temporal and threshold selection does not use test data;
+10. model metrics and model bundle are persisted;
+11. FastAPI exposes health, KPI, model-metric and prediction endpoints;
+12. analytics agent uses read-only governed queries and no arbitrary SQL;
+13. integration tests pass;
+14. Ruff passes;
+15. generated datasets, model artifacts, databases and secrets are outside Git;
+16. documentation distinguishes implemented MVP components from target architecture;
+17. screenshots/visual documentation represent real implemented components.
 
-## Dados
+## Current evidence
 
-- Raw permanece imutável.
-- Provenance e checksum preservados.
-- Grain documentado.
-- Joins multi-grão avaliados contra fan-out.
-- Dados sintéticos nunca são apresentados como observados.
-- Métricas oficiais possuem definição, grain, filtros, unidade e testes.
+- 12 integration tests pass locally;
+- final delivery-delay test ROC AUC: 0.7257;
+- Streamlit dashboard validated locally;
+- FastAPI Swagger validated locally;
+- agent ranking/context behavior validated locally;
+- GitHub repository contains the source, ADRs and reproducibility instructions.
 
-## ML
+## Data
 
-Um modelo requer problem statement, target, prediction point, leakage analysis,
-dataset versionado, split adequado, baseline, evaluation, error analysis, seed e
-model card.
+- Source provenance is explicit.
+- SHA-256 is preserved in ingestion metadata.
+- Gold fact grain is tested.
+- Multi-grain monetary joins are handled through explicit aggregation.
+- GMV and payments are separate measures.
+- Synthetic data is not presented as observed data.
 
-## Agent/HITL
+## Machine Learning
 
-Tool deve ter contrato, permissão e testes. Número quantitativo deve ser
-rastreável a evidence. Ação sensível requer proposta → aprovação → execução →
-auditoria. Prompt pedindo "cuidado" não substitui enforcement programático.
+A model requires:
 
-## Infra
+- problem statement;
+- target and prediction point;
+- leakage analysis;
+- temporal evaluation where applicable;
+- baseline/evaluation evidence;
+- threshold policy;
+- deterministic random seed;
+- persisted artifact and metrics.
 
-Serviço containerizado exige versão pinada, config, volume quando stateful,
-network, healthcheck e exposição mínima quando aplicável.
+## Agent
 
-Bootstrap deve ser reexecutável, preservar secrets existentes, validar
-pré-requisitos, não destruir estado implicitamente e retornar exit code != 0 em
-falha.
+The current MVP agent must:
 
-## Gate específico M0
+- use explicit tools/intents;
+- access DuckDB read-only;
+- avoid arbitrary SQL;
+- avoid administrative credentials;
+- perform no sensitive actions;
+- distinguish GMV from order count.
 
-Todos devem ser satisfeitos:
+LLM orchestration and HITL are target-architecture capabilities, not current MVP requirements.
 
-1. Project Charter aprovado/materializado.
-2. Arquitetura v1 aprovada/materializada.
-3. Estrutura aprovada.
-4. Storage Strategy aprovada.
-5. Source Catalog aprovado.
-6. Convenções aprovadas.
-7. ADRs coerentes; ADR-0002 Superseded e ADR-0008 Accepted.
-8. README reflete estado real.
-9. `LICENSE`, `NOTICE` e licença documental presentes.
-10. `.gitignore` protege `.env`, runtime, dados e artifacts.
-11. `.env.example` sem secrets reais.
-12. `.gitattributes` garante LF.
-13. `docker compose config --quiet` passa.
-14. PostgreSQL healthy.
-15. Garage healthy.
-16. volumes persistentes configurados.
-17. rede aprovada.
-18. portas publicadas apenas em loopback quando necessário.
-19. bootstrap existe.
-20. segunda execução do bootstrap preserva secrets/estado.
-21. buckets `olist-raw`, `olist-bronze`, `olist-silver`, `olist-gold`,
-    `olist-ml` existem.
-22. pipeline não possui acesso antecipado a `olist-ml`.
-23. `.env` não está tracked.
-24. backlog aprovado.
-25. DoD aprovado.
-26. working tree sem mudanças não intencionais.
-27. commits coerentes de Foundation.
-28. nenhuma ingestão/transformação/BI/ML/Agent antecipados.
+## Target infrastructure
 
-Somente após esse gate:
+Docker Compose, Garage, PostgreSQL, Airflow, dbt, Superset and the complete observability stack are retained as future architecture components.
 
-```text
-M0 — DONE → M1 autorizado
-```
+Their original M0-specific gate is historical and does not supersede ADR-0009 for the executable MVP.

@@ -1,196 +1,77 @@
-# Backlog M0–M11
+# Backlog and Delivery Status
 
-**Status:** Approved v1.0
+**Current status:** Executable MVP complete
+**Current version:** v1.0.1
+**Scope authority:** ADR-0009
 
-## M0 — Foundation
+The original M0–M11 backlog was designed for a broader production-oriented architecture. During implementation, ADR-0009 formally adopted a Windows-native portfolio MVP and removed Docker/WSL-dependent infrastructure from the critical path.
 
-- Project Charter — DONE
-- Arquitetura v1 — DONE
-- Estrutura do repositório — DONE
-- Estratégia de armazenamento — DONE
-- Catálogo das fontes — DONE
-- Convenções — DONE
-- ADRs iniciais — DONE
-- `.gitignore`, `.env.example`, `.gitattributes` — DONE
-- Docker Compose Foundation — materializado, validação operacional pendente
-- bootstrap Foundation — materializado, validação operacional pendente
-- README — DONE
-- licenciamento — materializado
-- backlog — DONE
-- Definition of Done — DONE
+The authoritative current status matrix is:
 
-Gate: PostgreSQL/Garage healthy, buckets provisionados, secrets fora do Git,
-checks aprovados e working tree coerente.
+```text
+docs/planning/mvp-status.md
+```
 
-## M1 — Data Sources & Ingestion
+## Completed executable MVP
 
-- aquisição/importação controlada;
-- source manifest;
-- validação pré-ingestão;
-- framework de ingestão;
-- Raw ingestion;
-- idempotência;
-- ingestion metadata;
-- Airflow foundation;
-- DAG de ingestão;
-- testes.
+- public Olist source acquisition/import;
+- 11-source validation;
+- ingestion manifest with SHA-256;
+- Bronze Parquet;
+- DuckDB warehouse;
+- Silver normalized entities;
+- Gold facts and dimensions;
+- shared Metrics Layer;
+- Streamlit BI;
+- delivery-delay ML use case;
+- leakage-aware temporal split;
+- XGBoost model;
+- MLflow local tracking;
+- persisted model;
+- FastAPI serving;
+- governed deterministic analytics agent;
+- integration suite;
+- Ruff validation;
+- static GitHub Actions validation;
+- final README and architecture documentation.
 
-Saída: fontes → Raw imutável + metadata por execução segura.
+## Deferred target-architecture capabilities
 
-## M2 — Data Lake
+These items remain valid evolution paths but are **not runtime claims of the MVP**:
 
-- framework Bronze;
-- schema handling;
-- naming normalization;
-- Bronze para fontes reais;
-- DuckDB;
-- layout de objetos;
-- incrementalidade quando fizer sentido;
-- framework sintético;
-- inventory snapshots;
-- operational events;
-- testes de lake.
-
-Saída: Raw/Bronze reproduzíveis e consultáveis.
-
-## M3 — Data Quality & Engineering
-
-- decisão final de ferramenta OSS de qualidade;
-- profiling;
-- baselines;
-- checks Raw/Bronze;
-- cardinalidades;
-- design Silver;
-- transforms Silver;
-- geolocation consolidation;
-- quality reports;
-- failure policies.
-
-Saída: Silver confiável e automatizadamente validado.
-
-## M4 — Analytics Engineering
-
-- dbt foundation;
-- roles/schemas;
-- sources;
-- staging;
-- intermediate;
-- dimensional model;
-- facts;
-- dimensions;
-- marts;
-- tests;
-- docs/lineage;
-- decisão da Metrics Layer;
-- Metrics Layer v1;
-- reconciliation tests.
-
-Saída: Silver → dbt → Gold → Metrics Layer.
-
-## M5 — BI
-
-- Superset foundation;
-- read-only role;
-- arquitetura de dashboards;
-- Executive Overview;
-- Sales & Customers;
-- Operations & Logistics;
-- shell de Predictive & AI Insights;
-- dashboard-as-code;
-- validação de KPI;
-- performance.
-
-## M6 — Data Science
-
-- ML problem contract;
-- leakage analysis;
-- feature dataset;
-- split temporal;
-- baseline;
-- feature engineering;
-- candidate models;
-- evaluation;
-- threshold analysis;
-- explainability;
-- error analysis;
-- model card;
-- forecast de demanda apenas se agregar valor.
-
-## M7 — MLOps
-
-- MLflow;
-- database;
-- credencial S3 específica;
-- tracking;
-- lifecycle de artefato/modelo;
-- training pipeline;
-- evaluation gate;
-- FastAPI;
-- prediction endpoint;
-- schema validation;
-- prediction logging;
-- integration tests.
-
-## M8 — Agentic AI
-
-- arquitetura do Agent;
-- decisão de framework;
-- modelo local;
-- Metrics Tool;
-- Gold Query Tool;
-- Prediction Tool;
-- Diagnostic Tool;
-- evidence contract;
-- query safety;
-- Agent API;
-- prompt versioning;
-- guardrails;
-- evaluation.
-
-## M9 — Observability
-
+- Garage object storage;
+- PostgreSQL analytical warehouse;
+- Docker Compose runtime;
+- Apache Airflow;
+- dbt Core;
+- dedicated OSS Data Quality platform;
+- Apache Superset;
 - Prometheus;
 - Grafana;
-- OTel Collector;
-- instrumentation;
-- pipeline metrics;
-- Data Quality metrics;
-- ML metrics;
-- Agent metrics;
-- dashboards operacionais;
-- alert rules;
-- tracing.
+- OpenTelemetry;
+- LLM-backed agent orchestration;
+- sensitive action workflows / HITL;
+- deterministic synthetic inventory and operational-event datasets.
 
-## M10 — Feedback & Human-in-the-loop
+## Historical M0–M11 mapping
 
-- classificação de ações;
-- action proposal schema;
-- approval workflow;
-- persistence;
-- Action Tool;
-- audit log;
-- feedback capture;
-- feedback analytics;
-- safety tests.
+The original target roadmap was:
 
-## M11 — CI/CD & Release
+1. M0 Foundation
+2. M1 Data Sources & Ingestion
+3. M2 Data Lake
+4. M3 Data Quality & Engineering
+5. M4 Analytics Engineering
+6. M5 Business Intelligence
+7. M6 Data Science
+8. M7 MLOps
+9. M8 Agentic AI
+10. M9 Observability
+11. M10 Feedback & Human-in-the-loop
+12. M11 CI/CD & Release
 
-- pre-commit;
-- Python CI;
-- dbt CI;
-- Data Quality CI;
-- Docker validation;
-- security checks;
-- contract tests;
-- integration CI;
-- E2E smoke test;
-- docs checks;
-- release workflow;
-- final bootstrap;
-- portfolio evidence;
-- documentação final.
+The executable MVP implements the portfolio-relevant capabilities across those areas where listed as complete in `mvp-status.md`; the remaining target components were explicitly deferred by ADR-0009.
 
-## Controle de escopo
+## Scope control
 
-Nova tecnologia só entra quando resolve problema real, possui responsabilidade
-clara e trade-off justificável. Itens opcionais não bloqueiam milestones.
+A technology is added only when it solves a concrete problem, has a clear responsibility and justifies its operational cost. Future target components do not block the completed portfolio MVP.

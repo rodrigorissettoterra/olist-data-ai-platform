@@ -1,6 +1,6 @@
 [project]
 name = "olist-data-ai-platform"
-version = "1.0.0"
+version = "1.0.1"
 description = "Local-first end-to-end Data & AI portfolio platform using Olist e-commerce data."
 requires-python = ">=3.12"
 authors = [
@@ -11,6 +11,7 @@ dependencies = [
   "duckdb",
   "fastapi",
   "joblib",
+  "kagglehub",
   "mlflow",
   "numpy",
   "pandas",

@@ -1,0 +1,65 @@
+name: mvp-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install static validation tools
+        run: python -m pip install --upgrade pip ruff
+
+      - name: Validate pyproject
+        run: |
+          python - <<'PY'
+          import pathlib
+          import tomllib
+
+          tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          print("PYPROJECT OK")
+          PY
+
+      - name: Ruff
+        run: |
+          ruff check \
+            agent/src/olist_agent/main.py \
+            api/src/olist_api/main.py \
+            dashboard/app.py \
+            ml/src/olist_ml/train_delay_model.py \
+            scripts/data/download_olist.py \
+            scripts/data/build_bronze.py \
+            scripts/data/build_silver_gold.py \
+            tests/integration/test_mvp_integration.py
+
+      - name: Compile Python sources
+        run: |
+          python -m compileall -q \
+            agent/src \
+            api/src \
+            dashboard \
+            ml/src \
+            scripts/data \
+            tests/integration
+
+      - name: Validate documentation assets
+        run: |
+          test -f docs/assets/dashboard-executive-overview.png
+          test -f docs/assets/fastapi-swagger.png
+          test -f docs/planning/mvp-status.md
+          test -f docs/adr/0009-adopt-windows-native-mvp.md

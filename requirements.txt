@@ -1,0 +1,12 @@
+duckdb
+fastapi
+joblib
+kagglehub
+mlflow
+numpy
+pandas
+pyarrow
+scikit-learn
+streamlit
+uvicorn[standard]
+xgboost
