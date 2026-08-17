@@ -1,382 +1,492 @@
 # Olist Data & AI Platform
 
-> **An end-to-end, local-first Data & AI platform designed to transform raw e-commerce data into trusted analytics, predictions, and AI-assisted decisions.**
+> **End-to-end, local-first Data & AI portfolio platform built on public Brazilian e-commerce data.**
 
-This project is a professional Data & AI engineering portfolio platform built around public **Olist Brazilian E-Commerce** data.
-
-Its objective is to demonstrate how multiple disciplines can work together in one governed architecture:
-
-**Data Engineering → Data Quality → Analytics Engineering → BI → Data Science → MLOps → Agentic AI → Observability → Feedback**
-
-<p>
-  <img src="https://img.shields.io/badge/Status-M0%20Foundation-blue" alt="M0 Foundation">
-  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker Compose">
-  <img src="https://img.shields.io/badge/PostgreSQL-Warehouse-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/Data%20%26%20AI-End--to--End-purple" alt="Data & AI">
-  <img src="https://img.shields.io/badge/Architecture-Local--First-green" alt="Local First">
-</p>
+![Status](https://img.shields.io/badge/status-MVP%20validated-success)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![DuckDB](https://img.shields.io/badge/Warehouse-DuckDB-yellow)
+![ML](https://img.shields.io/badge/ML-XGBoost-orange)
+![API](https://img.shields.io/badge/API-FastAPI-009688)
+![Tests](https://img.shields.io/badge/integration%20tests-12%20passing-success)
 
 ---
 
-## Current status
+## Overview
 
-### M0 — Foundation
+The **Olist Data & AI Platform** demonstrates how Data Engineering, analytical modeling, Business Intelligence, Machine Learning, MLOps, API serving and governed AI tooling can share the same analytical foundation.
 
-The project is intentionally developed through gated milestones rather than presenting planned components as already implemented.
-
-### Implemented in the repository
-
-- project charter and architectural foundation;
-- repository structure and conventions;
-- Docker Compose foundation;
-- PostgreSQL foundation configuration;
-- Garage S3-compatible object-storage foundation;
-- environment template and configuration conventions;
-- bootstrap automation;
-- static M0 validation;
-- storage strategy;
-- source catalog;
-- ADRs and architectural decisions;
-- licensing model;
-- milestone backlog from M0 to M11.
-
-### Planned for later milestones
-
-- production ingestion pipelines;
-- Bronze / Silver / Gold data processing;
-- formal Data Quality layer;
-- dbt analytical models;
-- Airflow orchestration;
-- governed Metrics Layer;
-- Superset dashboards;
-- Machine Learning models;
-- MLflow tracking and artifacts;
-- FastAPI serving;
-- Agentic AI;
-- Prometheus / Grafana / OpenTelemetry observability;
-- feedback and human-in-the-loop workflows;
-- final CI/CD release workflow.
-
-This distinction is deliberate: **the README reflects the real implementation state of the project.**
-
----
-
-## The problem
-
-E-commerce data is naturally fragmented across customers, orders, products, sellers, payments, reviews, logistics, marketing funnels, inventory, and operational events.
-
-A useful analytical system must do more than load these tables.
-
-It must answer questions such as:
-
-- Can the data be trusted?
-- Which metrics have a single governed definition?
-- Why is performance changing?
-- Which orders are likely to be delayed?
-- Which customers or operational areas deserve attention?
-- Can an AI assistant investigate data without bypassing governance?
-- Can the complete system be reproduced locally?
-
-This project is designed to answer those questions as one integrated platform.
-
----
-
-## Target architecture
+The executable MVP runs locally on Windows without requiring a cloud account, Docker or WSL.
 
 ```text
-Sources
-   ↓
-Ingestion
-   ↓
-Raw / Bronze
-   ↓
-Data Quality
-   ↓
-Silver
-   ↓
-Analytics Engineering
-   ↓
-Gold
-   ↓
-Metrics Layer
-   ↓
-┌───────────────┬───────────────┬───────────────┐
-│      BI       │      ML       │     Agent     │
-└───────────────┴───────────────┴───────────────┘
-                         ↓
-                       Serving
-                         ↓
-                    Observability
-                         ↓
-                       Feedback
+Olist public datasets
+        |
+        v
+       Raw
+        |
+        v
+ Bronze / Parquet
+        |
+        v
+      DuckDB
+        |
+   +----+----+----------------+
+   |         |                |
+ Silver    Gold            Metrics
+                              |
+               +--------------+--------------+
+               |              |              |
+          Streamlit BI   ML / MLflow     FastAPI
+                                             |
+                                      Prediction API
+
+                     Metrics / Gold
+                           |
+                           v
+                 Governed Analytics Agent
 ```
 
-The key principle is that BI, predictive models, APIs, and AI agents should consume **governed analytical assets**, rather than independently rebuilding business logic.
+The repository also preserves a broader production-oriented target architecture for future evolution.
 
 ---
 
-## Why local-first
+## What is implemented
 
-The core platform is designed to run without requiring an AWS, GCP, or Azure account.
+The current MVP includes:
 
-This has several goals:
+- ingestion of 11 source CSV files;
+- ingestion metadata and SHA-256 hashes;
+- Raw and Bronze layers;
+- Snappy-compressed Parquet;
+- DuckDB analytical warehouse;
+- Silver normalized entities;
+- Gold facts and dimensions;
+- shared Metrics Layer;
+- Streamlit analytical dashboard;
+- delivery-delay prediction model;
+- temporal Machine Learning evaluation;
+- XGBoost;
+- MLflow experiment tracking;
+- persisted model artifact;
+- FastAPI serving;
+- prediction endpoint for real orders;
+- governed analytical agent;
+- limited conversational context;
+- automated end-to-end integration tests.
 
-- make the project reproducible;
-- make infrastructure visible rather than abstracted away;
-- keep experimentation economically accessible;
-- demonstrate architecture rather than cloud-vendor dependence;
-- preserve portable interfaces such as S3-compatible object storage.
+Final validation:
 
-Local-first does **not** mean cloud-incompatible. The architecture deliberately uses patterns that can later be mapped to managed cloud services.
+```text
+12 passed
+```
 
 ---
 
 ## Data sources
 
-### Real public sources
+The project uses two public Olist datasets.
 
-- **Olist Brazilian E-Commerce Dataset**
-- **Olist Marketing Funnel**
+### Olist Brazilian E-Commerce Dataset
 
-### Reproducible synthetic sources
+The platform ingests:
 
-- inventory snapshots;
-- operational events.
+- customers;
+- geolocation;
+- orders;
+- order items;
+- payments;
+- reviews;
+- products;
+- sellers;
+- product-category translations.
 
-Campaign and web-event sources remain optional extensions.
+### Olist Marketing Funnel
+
+The platform also ingests:
+
+- marketing qualified leads;
+- closed deals.
+
+Total:
+
+```text
+11 CSV files
+```
 
 External datasets remain subject to their original licenses and terms.
 
 ---
 
-## Planned technology stack
+## Data architecture
 
-| Responsibility | Technology |
-|---|---|
-| Version control | Git + GitHub |
-| Local runtime | Docker Compose |
-| Object storage / Data Lake | Garage |
-| Warehouse | PostgreSQL |
-| Local analytics | DuckDB |
-| Analytics Engineering | dbt Core |
-| Orchestration | Apache Airflow |
-| Data Quality | OSS solution to be finalized by ADR |
-| BI | Apache Superset |
-| Machine Learning | scikit-learn / XGBoost |
-| Experiment tracking | MLflow self-hosted |
-| Serving | FastAPI |
-| Agentic AI | Local / open models and governed tools |
-| Metrics | Prometheus |
-| Monitoring | Grafana OSS |
-| Telemetry | OpenTelemetry |
-| CI/CD | GitHub Actions |
+### Bronze
 
-A technology appearing in this table does not imply that it is already implemented. Components are introduced only in their approved milestones.
+Raw CSV data is converted to Parquet and loaded into the `bronze` schema.
+
+The ingestion process records source metadata and SHA-256 hashes.
+
+### Silver
+
+The normalized analytical layer includes:
+
+- customers;
+- orders;
+- order items;
+- order payments;
+- order reviews;
+- products;
+- sellers;
+- geolocation;
+- marketing qualified leads;
+- closed deals.
+
+### Gold
+
+Current Gold assets include:
+
+```text
+gold.dim_customers
+gold.dim_products
+gold.fact_orders
+gold.fact_order_items
+```
+
+### Metrics Layer
+
+Current governed analytical outputs include:
+
+```text
+metrics.executive_kpis
+metrics.monthly_sales
+metrics.category_performance
+metrics.state_performance
+```
+
+BI, API and analytical tools reuse shared metric definitions instead of reimplementing business logic independently.
 
 ---
 
-## Data Lake strategy
+## Metric semantics
 
-Garage provides the local S3-compatible object-storage interface.
+### GMV
 
-Approved buckets:
+In this project:
 
 ```text
-olist-raw
-olist-bronze
-olist-silver
-olist-gold
-olist-ml
+GMV = sum of item prices transacted in the marketplace
 ```
 
-S3 compatibility is treated as a **technical interface**, not as a dependency on AWS.
+GMV is **not equivalent to Olist revenue**.
+
+A category may have higher GMV while having fewer orders. Therefore the platform treats financial volume and order count as separate dimensions.
+
+### Number of orders
+
+Order volume is based on distinct `order_id`.
+
+### Payments
+
+Payment totals are maintained separately from GMV because they represent a different business measure.
+
+### Delivery delay
+
+A delivered order is classified as delayed when:
+
+```text
+actual delivery date > estimated delivery date
+```
 
 ---
 
-## Analytics Engineering and Metrics Layer
+## Current analytical snapshot
 
-The platform is designed so that business metrics are not independently recreated by every consumer.
-
-```text
-Silver / Gold
-     ↓
-Governed Metrics Layer
-     ↓
-BI + API + ML + Agent
-```
-
-This should reduce metric drift and make analytical definitions easier to audit, test, and reuse.
+| Metric | Value |
+|---|---:|
+| Orders | 99,441 |
+| Unique customers | 96,096 |
+| Delivered orders | 96,478 |
+| Canceled orders | 625 |
+| GMV | R$ 13,591,643.70 |
+| Average order GMV | R$ 136.68 |
+| Average review score | 4.09 / 5 |
+| Delayed deliveries | 8.11% |
+| Average delivery time | 12.5 days |
 
 ---
 
 ## Business Intelligence
 
-The final BI layer is planned around four views:
+The Streamlit application contains four views:
 
-1. **Executive Overview**
-2. **Sales & Customers**
-3. **Operations & Logistics**
-4. **Predictive & AI Insights**
+1. Executive Overview
+2. Sales & Customers
+3. Operations & Logistics
+4. Predictive & AI Insights
 
-Dashboards should consume the same governed metric definitions used by analytical APIs and AI tools.
+Run:
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run .\dashboard\app.py
+```
+
+Then access:
+
+```text
+http://localhost:8501
+```
 
 ---
 
 ## Machine Learning
 
-The first planned predictive use case is:
+The predictive use case is:
 
 ```text
 delivery_delay_risk
 ```
 
-A central modeling rule is **point-in-time correctness**.
+The model estimates the risk of a delivered order exceeding its estimated delivery date.
 
-Only information available at the formal prediction timestamp may be used as a feature. Variables that become available after the target event are prohibited to prevent leakage.
+### Leakage prevention
 
-The planned ML lifecycle includes:
+Only information available before the delivery outcome is used as a feature.
 
-```text
-Features
-   ↓
-Training
-   ↓
-Evaluation
-   ↓
-MLflow Tracking
-   ↓
-Model Artifact
-   ↓
-Serving
-   ↓
-Monitoring
-   ↓
-Feedback
-```
-
----
-
-## Agentic AI governance
-
-The future agent will not receive unrestricted database access or administrative credentials.
-
-It is designed to consume governed tools over approved analytical assets such as the Metrics Layer, Gold models, and prediction outputs.
-
-The action model is:
+The final split is temporal:
 
 ```text
-READ                     → automatic
-ANALYZE                  → automatic
-RECOMMEND                → automatic
-PROPOSE ACTION           → automatic
-EXECUTE SENSITIVE ACTION → human approval required
+70% training
+15% validation
+15% test
 ```
 
-The agent is intended to support investigation and decision-making without becoming an uncontrolled privileged actor.
+The decision threshold is selected only with the validation set.
+
+### Final test performance
+
+| Metric | Result |
+|---|---:|
+| ROC AUC | 0.7259 |
+| PR AUC | 0.1679 |
+| Precision | 0.1470 |
+| Recall | 0.5528 |
+| F1 | 0.2323 |
+| Threshold | 0.42 |
+| Test delay rate | 6.61% |
+
+The target is imbalanced. The model is presented as a risk-ranking portfolio use case rather than as a production SLA.
+
+Train:
+
+```powershell
+.\.venv\Scripts\python.exe .\ml\src\olist_ml\train_delay_model.py
+```
+
+Experiment metadata is tracked locally with MLflow and SQLite.
 
 ---
 
-## M0 Foundation
+## FastAPI
 
-The current milestone establishes only the minimum infrastructure required before data ingestion begins.
-
-Foundation services:
-
-- PostgreSQL;
-- Garage.
-
-Later services are introduced only when their milestone starts.
-
-### Bootstrap
-
-From the repository root on PowerShell:
+Start:
 
 ```powershell
-python .\scripts\bootstrap\bootstrap_foundation.py
+.\.venv\Scripts\python.exe -m uvicorn olist_api.main:app `
+    --app-dir .\api\src `
+    --port 8000
 ```
 
-The bootstrap workflow is designed to:
+Swagger UI:
 
-- create `.env` when required;
-- generate Foundation secrets;
-- validate Docker Compose configuration;
-- start PostgreSQL and Garage;
-- wait for health checks;
-- create the approved buckets;
-- apply initial pipeline permissions.
-
-### Static validation
-
-```powershell
-python .\scripts\bootstrap\validate_m0.py
+```text
+http://127.0.0.1:8000/docs
 ```
 
----
+Available endpoints:
 
-## Roadmap
-
-| Milestone | Scope |
+| Endpoint | Description |
 |---|---|
-| **M0** | Foundation |
-| **M1** | Data Sources & Ingestion |
-| **M2** | Data Lake |
-| **M3** | Data Quality & Engineering |
-| **M4** | Analytics Engineering |
-| **M5** | Business Intelligence |
-| **M6** | Data Science |
-| **M7** | MLOps |
-| **M8** | Agentic AI |
-| **M9** | Observability |
-| **M10** | Feedback & Human-in-the-loop |
-| **M11** | CI/CD & Release |
-
-The detailed backlog is maintained in [`docs/planning/backlog.md`](docs/planning/backlog.md).
+| `GET /health` | Runtime health |
+| `GET /api/v1/kpis` | Executive metrics |
+| `GET /api/v1/model/metrics` | Machine Learning evaluation |
+| `GET /api/v1/predict/{order_id}` | Delivery-delay risk |
 
 ---
 
-## Documentation-first engineering
+## Governed Analytics Agent
 
-Architectural and product decisions are kept outside implementation code whenever they represent contracts or long-lived design choices.
+The MVP includes a deterministic analytical agent built over explicit, approved tools.
 
-Key documentation areas include:
+It is intentionally constrained:
 
-- [`docs/charter/project-charter.md`](docs/charter/project-charter.md)
-- [`docs/architecture/architecture-v1.md`](docs/architecture/architecture-v1.md)
-- [`docs/data/source-catalog.md`](docs/data/source-catalog.md)
-- [`docs/data/storage-strategy.md`](docs/data/storage-strategy.md)
-- [`docs/conventions/`](docs/conventions/)
-- [`docs/adr/`](docs/adr/)
-- [`docs/planning/`](docs/planning/)
+- read-only database access;
+- no arbitrary SQL;
+- no administrative credentials;
+- explicit analytical tools;
+- limited conversational context;
+- no sensitive actions.
 
-ADRs are used to record architectural choices so that important trade-offs remain explicit and reviewable.
+Supported subjects include:
+
+- datasets used;
+- executive KPIs;
+- categories ranked by GMV;
+- categories ranked by number of orders;
+- states by GMV;
+- highest and lowest delivery-delay rates;
+- historical order lookup.
+
+Run:
+
+```powershell
+.\.venv\Scripts\python.exe .\agent\src\olist_agent\main.py
+```
+
+The current agent is **not presented as an LLM-backed generative agent**.
+
+Its tool layer can later be connected to an LLM without granting unrestricted database access.
+
+---
+
+## Automated validation
+
+The integration suite verifies:
+
+- DuckDB availability;
+- Bronze/Silver/Gold/Metrics schemas;
+- fact-order uniqueness;
+- executive KPI consistency;
+- persisted model artifacts;
+- ML evaluation metrics;
+- agent intent routing;
+- conversational ranking context;
+- FastAPI health;
+- KPI serving;
+- ML metric serving;
+- real order prediction.
+
+Run:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest `
+    .\tests\integration\test_mvp_integration.py `
+    -v
+```
+
+Validated result:
+
+```text
+12 passed
+```
+
+The current environment may emit two NumPy/joblib deprecation warnings while loading the persisted model. They do not cause test failures.
+
+---
+
+## Running locally
+
+### 1. Create the environment
+
+```powershell
+python -m venv .venv
+```
+
+### 2. Install runtime dependencies
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install .
+```
+
+Development and tests:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install ".[dev]"
+```
+
+### 3. Source data
+
+Place the source CSV files under:
+
+```text
+data/raw/
+```
+
+Generated data, DuckDB files, model artifacts, MLflow data and the virtual environment are excluded from Git.
+
+### 4. Build Bronze
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\data\build_bronze.py
+```
+
+### 5. Build Silver, Gold and Metrics
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\data\build_silver_gold.py
+```
+
+### 6. Train ML
+
+```powershell
+.\.venv\Scripts\python.exe .\ml\src\olist_ml\train_delay_model.py
+```
+
+---
+
+## MVP versus target architecture
+
+### Executable MVP
+
+- Python 3.12;
+- filesystem;
+- Parquet;
+- DuckDB;
+- Streamlit;
+- XGBoost;
+- MLflow;
+- FastAPI;
+- governed analytical tools;
+- pytest;
+- Ruff.
+
+### Target architecture
+
+The repository retains architecture and scaffolding for future evolution with:
+
+- Docker Compose;
+- Garage S3-compatible object storage;
+- PostgreSQL;
+- dbt Core;
+- Apache Airflow;
+- Apache Superset;
+- Prometheus;
+- Grafana;
+- OpenTelemetry;
+- GitHub Actions;
+- LLM-backed agent orchestration;
+- broader feedback and human-in-the-loop workflows.
+
+These components are not claimed as implemented in the executable MVP.
+
+See:
+
+```text
+docs/adr/0009-adopt-windows-native-mvp.md
+```
 
 ---
 
 ## Engineering principles
 
-### Build in milestones
-
-New infrastructure is added only when a milestone requires it.
-
-### Separate implemented from planned
-
-The repository should never imply that roadmap components already exist.
-
-### Govern metrics once
-
-BI, ML, APIs, and Agentic AI should reuse common analytical definitions.
-
-### Prevent leakage by design
-
-Predictive features must respect the formal prediction point in time.
-
-### Restrict AI privileges
-
-Agents should operate through governed tools and require human approval for sensitive actions.
-
-### Observe the complete system
-
-The target architecture treats data pipelines, models, APIs, and agents as observable production components rather than isolated experiments.
+- local-first;
+- Raw → Bronze → Silver → Gold separation;
+- shared metric definitions;
+- point-in-time correctness;
+- leakage prevention;
+- governed AI access;
+- read-only analytical tools;
+- explicit separation between implemented and planned architecture;
+- generated data outside Git;
+- automated integration validation;
+- architectural decisions recorded with ADRs.
 
 ---
 
@@ -386,7 +496,7 @@ Original source code and configuration are licensed under the **Apache License 2
 
 Original documentation and diagrams are licensed under **Creative Commons Attribution 4.0 (CC BY 4.0)** with attribution to Rodrigo Terra.
 
-External datasets remain subject to the licenses and terms of their original sources.
+External datasets remain subject to their original licenses and terms.
 
 ---
 
@@ -394,7 +504,7 @@ External datasets remain subject to the licenses and terms of their original sou
 
 **Rodrigo Terra**
 
-Data & AI professional focused on analytics engineering, data platforms, Machine Learning, Generative AI, automation, MLOps, and reliable AI systems.
+Data & AI professional focused on data platforms, Analytics Engineering, Machine Learning, Generative AI, automation, MLOps and reliable AI systems.
 
-- GitHub: [Rodrigo Terra](https://github.com/rodrigorissettoterra)
-- LinkedIn: [Rodrigo Terra](https://www.linkedin.com/in/rodrigo-rissetto-terra/)
+- GitHub: https://github.com/rodrigorissettoterra
+- LinkedIn: https://www.linkedin.com/in/rodrigo-rissetto-terra/

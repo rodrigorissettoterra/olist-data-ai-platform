@@ -1,10 +1,31 @@
 [project]
 name = "olist-data-ai-platform"
-version = "0.1.0"
-description = "Local-first end-to-end Data & AI portfolio platform using Olist data."
+version = "1.0.0"
+description = "Local-first end-to-end Data & AI portfolio platform using Olist e-commerce data."
 requires-python = ">=3.12"
 authors = [
   { name = "Rodrigo Terra" }
+]
+
+dependencies = [
+  "duckdb",
+  "fastapi",
+  "joblib",
+  "mlflow",
+  "numpy",
+  "pandas",
+  "pyarrow",
+  "scikit-learn",
+  "streamlit",
+  "uvicorn[standard]",
+  "xgboost",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx2",
+  "pytest",
+  "ruff",
 ]
 
 [tool.ruff]
@@ -17,4 +38,10 @@ indent-style = "space"
 line-ending = "lf"
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "api/tests", "ml/tests", "agent/tests", "synthetic_data/tests"]
+testpaths = [
+  "tests",
+  "api/tests",
+  "ml/tests",
+  "agent/tests",
+  "synthetic_data/tests",
+]

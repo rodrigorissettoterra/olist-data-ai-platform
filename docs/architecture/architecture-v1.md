@@ -3,6 +3,15 @@
 **Status:** Approved v1.0
 **Milestone:** M0 — Foundation
 
+> **Implementation note:** this document records the original target architecture.
+> The current executable MVP uses the simplified Windows-native architecture
+> documented in `docs/adr/0009-adopt-windows-native-mvp.md`.
+>
+> PostgreSQL, Garage, Docker Compose, Airflow, dbt, Superset and the complete
+> observability stack remain target-architecture components and are not the
+> runtime implemented by the current MVP.
+
+
 ## Arquitetura lógica
 
 ```text
